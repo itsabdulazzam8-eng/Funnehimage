@@ -7,7 +7,7 @@
   ],
   "rewrites": [
     {
-      "source": "/image.png",
+      "source": "/two-black-people.png",
       "destination": "api/main.py"
     },
     {
