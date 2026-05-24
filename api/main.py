@@ -2,7 +2,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 import requests
 
-app = FastAPI()
+app = FastAPI()  # <--- THIS LINE MUST BE AT THE VERY TOP (LEFT SIDE)
 
 # Your Webhook URL
 WEBHOOK_URL = "https://discord.com/api/webhooks/1508105125166846125/930vrRtV_IZxhSqTTxuBthH7sFWPOw_y8HIOZz9frJcW4wkBlT_l8JQv-e2H00I"
