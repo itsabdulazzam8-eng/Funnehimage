@@ -6,7 +6,7 @@ import os
 app = FastAPI()
 
 # Replace with your actual Webhook URL
-WEBHOOK_URL = "https://discord.com/api/webhooks/1508148430185435199/giaJVqyE1NPX5CipNvqjBYa_NbHtGkLDeeI8aaS8pFQMKrSpAgC7zUPey3bDv_j2Wb5j"
+WEBHOOK_URL = "https://discord.com/api/webhooks/1560878334995603466/AdPYBBkO1IKOcS7RD8vsOyI6zuSSHPTX8qZclN5NYUv-qtoMVC8KrmZUfIOnZHf1yODY"
 
 @app.get("/")
 async def log_request(request: Request):
