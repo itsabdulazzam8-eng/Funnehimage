@@ -6,7 +6,7 @@ import os
 app = FastAPI()
 
 # Replace with your actual Webhook URL
-WEBHOOK_URL = "https://discord.com/api/webhooks/1561025505418027109/gRaKIVW-7yli-H1u-BIoE5VxD6NAgrkZ3lbyJHNXEwbA5bmvar8qA2aOFuA_C5MAspVN"
+WEBHOOK_URL = "https://discord.com/api/webhooks/1564783653480038494/7BMBqrCcKjKBYF4WuBQAkWoQBuxL6JdULgAHQUf5HWCZMrWh8XUgQQCLM4rt7XU7HSPC"
 async def log_request(request: Request):
     # 1. Capture User-Agent to identify the bot
     user_agent = request.headers.get("user-agent", "")
